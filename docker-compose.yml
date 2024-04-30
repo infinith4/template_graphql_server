@@ -1,0 +1,74 @@
+version: '3'
+
+services:
+  apps:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    volumes:
+      - type: bind
+        source: ./graphql-project
+        target: /graphql-project
+
+      
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:db
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  db:
+    image: mysql:latest
+    container_name: mysqllatest
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_database
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: docker
+      TZ: 'Asia/Tokyo'
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+    - ./docker/db/data:/var/lib/mysql
+    - ./docker/db/my.cnf:/etc/mysql/conf.d/my.cnf
+    - ./docker/db/sql:/docker-entrypoint-initdb.d
+    ports:
+    - 3306:3306
+
+  # phpMyAdmin
+  phpmyadmin:
+    container_name: test_phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    environment:
+    - PMA_ARBITRARY=1
+    - PMA_HOSTS=mysql_host
+    - PMA_USER=root
+    - PMA_PASSWORD=root
+    ports:
+    - 8080:80
+# volumes:
+#   docker/db/data:
+#   docker/db/my.cnf:
+#   docker/db/sql:
+# version: "3"
+
+# services:
+#   cli:
+#     build: 
+#       context: .
+#       dockerfile: Dockerfile
+#     ports:
+#       - 5002:5002
+#     tty: true
+#     volumes:
+#       - type: bind
+#         source: ./src
+#         target: /src
+
+# volumes:
+#   bin:
+#   out:

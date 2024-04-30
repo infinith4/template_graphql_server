@@ -26,11 +26,11 @@ services:
     container_name: mysqllatest
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: test_database
-      MYSQL_USER: docker
-      MYSQL_PASSWORD: docker
-      TZ: 'Asia/Tokyo'
+      - MYSQL_DATABASE=db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
+      - MYSQL_ROOT_PASSWORD=pass
+      - TZ=Asia/Tokyo
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
     - ./docker/db/data:/var/lib/mysql
@@ -43,13 +43,17 @@ services:
   phpmyadmin:
     container_name: test_phpmyadmin
     image: phpmyadmin/phpmyadmin
+    depends_on:
+      - db
     environment:
-    - PMA_ARBITRARY=1
-    - PMA_HOSTS=mysql_host
-    - PMA_USER=root
-    - PMA_PASSWORD=root
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=db
+      - PMA_USER=user
+      - PMA_PASSWORD=pass
     ports:
-    - 8080:80
+      - "3000:80"
+    volumes:
+      - ./docker/phpmyadmin/sessions:/sessions
 # volumes:
 #   docker/db/data:
 #   docker/db/my.cnf:

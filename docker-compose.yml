@@ -2,6 +2,7 @@ version: '3'
 
 services:
   apps:
+    container_name: graphqlserver
     build: 
       context: .
       dockerfile: Dockerfile
@@ -22,36 +23,19 @@ services:
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
   db:
-    image: mysql:latest
-    container_name: mysqllatest
-    restart: unless-stopped
-    environment:
-      - MYSQL_DATABASE=db
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=pass
-      - MYSQL_ROOT_PASSWORD=pass
-      - TZ=Asia/Tokyo
-    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    volumes:
-    - ./docker/db/data:/var/lib/mysql
-    - ./docker/db/my.cnf:/etc/mysql/conf.d/my.cnf
-    - ./docker/db/sql:/docker-entrypoint-initdb.d
-    ports:
-    - 3306:3306
-
-  # phpMyAdmin
+    image: mysql:8.0
+    container_name: mysql80
+    restart: always
+    env_file:
+      - mysql.env
   phpmyadmin:
-    container_name: test_phpmyadmin
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: always
     depends_on:
       - db
-    environment:
-      - PMA_ARBITRARY=1
-      - PMA_HOSTS=db
-      - PMA_USER=user
-      - PMA_PASSWORD=pass
     ports:
-      - "3000:80"
+      - 9090:80
     volumes:
       - ./docker/phpmyadmin/sessions:/sessions
 # volumes:
